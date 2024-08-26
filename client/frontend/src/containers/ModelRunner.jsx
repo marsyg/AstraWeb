@@ -14,7 +14,7 @@ const ModelRunner = ({ modelOptions, selectedModel, onModelChange }) => {
 				try {
 					const apiEndpoint = `https://api-inference.huggingface.co/models/${selectedModel}`;
 					const headers = {
-						Authorization: `Bearer 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`, 
+						Authorization: `Bearer ,,`, 
 					};
 
 					const response = await axios.post(

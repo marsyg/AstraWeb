@@ -21,7 +21,7 @@ const App = () => {
 			"https://api-inference.huggingface.co/models/bert-base-uncased",
 			{
 				headers: {
-					Authorization: `Bearer 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`,
+					Authorization: `Bearer ${config.apiKey}`,
 				},
 				method: "POST",
 				body: JSON.stringify(data),
