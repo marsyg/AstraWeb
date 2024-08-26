@@ -1,37 +1,90 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 
-
 const ModelRunner = ({ modelOptions, selectedModel, onModelChange }) => {
 	const [inputText, setInputText] = useState("");
-	const [outputText, setOutputText] = useState("");
-	const [isRateLimited, setIsRateLimited] = useState(false);
+  const [outputText, setOutputText] = useState("");
+   const [isLoading, setIsLoading] = useState(false);
 
-	useEffect(() => {
-		if (selectedModel) {
-			const apiEndpoint = `https://api-inference.huggingface.co/models/${selectedModel}`;
-			const headers = {
-				Authorization: `Bearer `,
-			};
+  useEffect(() => {
+		const fetchData = async () => {
+			if (selectedModel) {
+				setIsLoading(true);
 
-			axios
-				.get(apiEndpoint, { headers })
-				.then((response) => {
-					console.log(response.data);
-				
-				})
-				.catch((error) => {
-					console.error("Error fetching model information:", error);
-				});
-		}
-	}, [selectedModel]);
+				try {
+					const apiEndpoint = `https://api-inference.huggingface.co/models/${selectedModel}`;
+					const headers = {
+						Authorization: `Bearer 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`, 
+					};
+
+					const response = await axios.post(
+						apiEndpoint,
+						{ inputs: inputText },
+						{ headers }
+					);
+          setOutputText(response.data);
+          console.log(response.data.generated_text)
+				} catch (error) {
+					console.error(error);
+				} finally {
+					setIsLoading(false); // Reset loading state
+				}
+			}
+		};
+
+		fetchData();
+	}, [selectedModel, inputText]);
+
+	// const handleModelRunner = async () => {
+	// 	if (inputText === "") {
+	// 		return;
+			
+  //   }
+  //   try {
+	// 		const apiEndpoint = `https://api-inference.huggingface.co/models/${selectedModel}`;
+	// 		const headers = {
+	// 			Authorization: `Bearer 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`, //remove token
+	// 		};
+	// 		const response = await axios.get(
+	// 			apiEndpoint,
+	// 			{ inputs: inputText },
+	// 			{ headers }
+	// 		);
+  //     setOutputText(response.data);
+  //     console.log(response)
+	// 	} catch (error) {
+	// 		console.error(error);
+	// 	}
+  // };
+  // handleModelRunner();
+  //   useEffect(() => {
+  //     if (selectedModel) {
+  //       const apiEndpoint = `https://api-inference.huggingface.co/models/${selectedModel}`;
+  //       const headers = {
+  //         Authorization: `Bearer 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`, 
+  //       };
+
+	// 		const handleAPIendpoint = async () => {
+	// 			const response = await axios.get(
+	// 				apiEndpoint,
+	// 				{ inputs: inputText },
+	// 				{ headers }
+	// 			);
+	// 			setOutputText(response.data);
+	// 			console.log(response);
+	// 			console.log(outputText, "from handelAPI point");
+	// 		};
+	// 		handleAPIendpoint();
+	// 	}
+	// }, [selectedModel, inputText]);
 
 	const handleInputChange = (event) => {
 		setInputText(event.target.value);
 	};
 
 	const handleModelChange = (event) => {
-		onModelChange(event.target.value);
+		console.log(event, "from ModelChange");
+		onModelChange(event);
 	};
 
 	return (
@@ -44,11 +97,16 @@ const ModelRunner = ({ modelOptions, selectedModel, onModelChange }) => {
 					</option>
 				))}
 			</select>
-			<textarea value={inputText} placeholder="your text" onChange={handleInputChange} />
+			<textarea
+				value={inputText}
+				placeholder="your text"
+				onChange={handleInputChange}
+			/>
 			<button onClick={() => handleModelChange(selectedModel)}>
 				Run Model
 			</button>
-			{isRateLimited && <p>Rate limit exceeded. Please try again later.</p>}
+
+			{isLoading && <p>Loading...</p>}
 			<p>Output:</p>
 			<textarea value={outputText} readOnly />
 		</div>
